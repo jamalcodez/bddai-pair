@@ -50,34 +50,94 @@ BDD-AI Pair is a development framework that combines Behavior-Driven Development
 
 ## Quick Start
 
-### Installation
+### Prerequisites
+
+Before you begin, ensure you have:
+
+- **Node.js** version 18 or higher
+- **pnpm** package manager (recommended)
+- **TypeScript** knowledge
+- **AI Coding Tool**: Claude Code, Cursor, or similar MCP-compatible tool
+- **Git** for version control
 
 ```bash
-# Install globally
-npm install -g @bddai/cli
+# Verify Node.js version
+node --version  # Should be 18.x or higher
 
-# Or use directly with pnpm
-pnpm add -D @bddai/core @bddai/cli
+# Install pnpm if not already installed
+npm install -g pnpm
+```
+
+### Installation
+
+Since BDD-AI Pair is currently in development, install from source:
+
+```bash
+# Clone the repository
+git clone https://github.com/jamalcodez/bddai-pair.git
+cd bddai-pair
+
+# Install dependencies
+pnpm install
+
+# Build the packages
+pnpm build
+
+# Make CLI available globally
+pnpm link
+```
+
+### Configure AI Tool Integration
+
+Choose your preferred AI coding tool:
+
+**For Claude Code:**
+```bash
+# Claude Code should have access to the project directory
+# No additional setup needed if using from the project folder
+```
+
+**For Cursor:**
+```bash
+# Ensure Cursor has MCP server access to the project
+# Install Cursor adapter if needed
 ```
 
 ### Initialize a New Project
 
 ```bash
-bddai init my-project
-cd my-project
+# Create a new directory for your project
+mkdir my-bdd-project
+cd my-bdd-project
+
+# Initialize with BDD-AI Pair
+bddai init
+
+# Install dependencies
 pnpm install
 ```
 
-### Step 1: Create Your Product Requirements Document (PRD)
-
-```bash
-# Create a PRD file for your feature
-bddai requirements add user-authentication
-
-# This creates: requirements/user-authentication.prd
+This creates:
+```
+my-bdd-project/
+├── requirements/        # For your PRD files
+├── features/           # Generated Gherkin features
+├── src/steps/          # Step definitions
+├── tests/              # Test files
+├── .bddai/             # Configuration
+└── docs/features/      # Documentation
 ```
 
-Edit the created PRD file to define your requirements:
+### Step 1: Create Your First PRD
+
+Create a PRD file in the requirements directory:
+
+```bash
+# Create a new PRD file
+touch requirements/user-authentication.prd
+```
+
+Edit the file with your requirements:
 
 ```markdown
 # User Authentication PRD
@@ -112,10 +172,19 @@ So that I can access my protected resources
 - Account lockout after failed attempts
 ```
 
-### Step 2: Analyze Requirements and Generate Features
+### Step 2: Add PRD to Project
 
 ```bash
-# Analyze the PRD and automatically generate BDD features
+# Add the PRD file to your project
+bddai requirements add requirements/user-authentication.prd
+
+# This analyzes the PRD and prepares it for feature generation
+```
+
+### Step 3: Generate BDD Features
+
+```bash
+# Analyze the PRD and generate BDD features
 bddai requirements analyze user-authentication
 
 # This creates:
@@ -124,7 +193,7 @@ bddai requirements analyze user-authentication
 # - Analysis report with quality scores
 ```
 
-### Step 3: Review Generated Feature Files
+### Step 4: Review Generated Features
 
 The system automatically converts your PRD into Gherkin scenarios:
 
@@ -141,34 +210,31 @@ Feature: User Login
     And the token should be valid for 24 hours
 ```
 
-### Step 4: Start AI Pair Programming
+### Step 5: Start AI Pair Programming
 
 ```bash
-# Start AI pair programming on the generated features
+# Start AI pair programming session
 bddai pair start user-authentication
 
-# Generate step definitions
+# Your AI tool will now help implement the feature
+# based on the generated scenarios
+
+# Generate step definitions when ready
 bddai generate steps user-authentication
 
-# Run tests
+# Run tests to verify implementation
 bddai test
 ```
 
-### Step 5: Validate and Export
+### Step 6: Validate and Export
 
 ```bash
 # Validate requirement quality
 bddai requirements validate user-authentication
 
-# Export analysis to markdown for stakeholders
+# Export analysis for stakeholders
 bddai requirements export user-authentication --format markdown
 ```
-
-This workflow ensures:
-- Business requirements drive development
-- Automatic traceability from PRD to tests
-- Quality validation before implementation
-- AI assistance for implementing validated requirements
 
 ## Packages
 
