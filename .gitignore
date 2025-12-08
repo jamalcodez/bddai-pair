@@ -1,0 +1,48 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Runtime
+.cache/
+.temp/
+.tmp/
+
+# Coverage
+coverage/
+*.lcov
+
+# Testing
+.nyc_output/
+
+# Package manager
+.pnpm-debug.log*
+
+# IDE workspace files
+*.code-workspace

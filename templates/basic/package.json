@@ -1,0 +1,28 @@
+{
+  "name": "{{name}}",
+  "version": "1.0.0",
+  "description": "{{description}}",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "test": "bddai test run",
+    "test:watch": "bddai test run --watch",
+    "test:coverage": "bddai test coverage",
+    "bddai": "bddai",
+    "lint": "eslint . --ext .ts",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "@bddai/core": "^0.1.0",
+    "@bddai/cli": "^0.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "tsx": "^4.6.0",
+    "typescript": "^5.3.0",
+    "eslint": "^8.54.0",
+    "prettier": "^3.1.0"
+  }
+}

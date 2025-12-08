@@ -1,0 +1,25 @@
+{
+  "name": "@bddai/cursor-adapter",
+  "version": "0.1.0",
+  "description": "Cursor adapter for BDD-AI Pair framework",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@bddai/core": "workspace:*",
+    "@bddai/types": "workspace:*"
+  },
+  "devDependencies": {
+    "vitest": "^1.0.0"
+  }
+}
