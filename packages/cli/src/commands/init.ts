@@ -27,6 +27,7 @@ export class InitCommand extends Command {
     this.argument('[project-name]', 'Name of the project');
     this.option('-t, --template <template>', 'Template to use', 'basic');
     this.option('-f, --force', 'Force initialization even if directory exists');
+    this.option('--adapter <adapter>', 'AI IDE adapter to use (claude-code, cursor, both)', 'both');
     this.action(this.execute.bind(this));
   }
 
@@ -65,23 +66,35 @@ export class InitCommand extends Command {
       mkdirSync(projectDir, { recursive: true });
 
       // Create basic structure
-      await this.createProjectStructure(projectDir, projectName!);
+      await this.createProjectStructure(projectDir, projectName!, options?.adapter || 'both');
 
       // Create configuration
-      await this.createConfig(projectDir, projectName!);
+      await this.createConfig(projectDir, projectName!, options?.adapter || 'both');
 
       spinner.succeed(chalk.green(`Project ${projectName} initialized successfully!`));
       console.log('\nCreated:');
       console.log(chalk.gray('  ✓ Project structure (features/, requirements/, tests/)'));
       console.log(chalk.gray('  ✓ Configuration (.bddai/config.json)'));
-      console.log(chalk.gray('  ✓ Claude Code commands (.claude/commands/)'));
+
+      const adapter = options?.adapter || 'both';
+      if (adapter === 'claude-code' || adapter === 'both') {
+        console.log(chalk.gray('  ✓ Claude Code commands (.claude/commands/)'));
+        console.log('\nClaude Code commands available:');
+        console.log(chalk.cyan('  /bddai-analyze    - Analyze PRD and generate features'));
+        console.log(chalk.cyan('  /bddai-pair       - Start AI pair programming'));
+        console.log(chalk.cyan('  /bddai-review     - Review BDD scenarios'));
+        console.log(chalk.cyan('  /bddai-test       - Run tests'));
+        console.log(chalk.cyan('  /bddai-status     - Check project status'));
+      }
+
+      if (adapter === 'cursor' || adapter === 'both') {
+        console.log(chalk.gray('  ✓ Cursor integration (.cursorrules, .cursor/)'));
+        console.log('\nCursor integration available:');
+        console.log(chalk.cyan('  .cursorrules      - Cursor AI rules for BDD workflow'));
+        console.log(chalk.cyan('  .cursor/          - Composer rules and context files'));
+      }
+
       console.log(chalk.gray('  ✓ Example PRD and feature files'));
-      console.log('\nClaude Code commands available:');
-      console.log(chalk.cyan('  /bddai-analyze    - Analyze PRD and generate features'));
-      console.log(chalk.cyan('  /bddai-pair       - Start AI pair programming'));
-      console.log(chalk.cyan('  /bddai-review     - Review BDD scenarios'));
-      console.log(chalk.cyan('  /bddai-test       - Run tests'));
-      console.log(chalk.cyan('  /bddai-status     - Check project status'));
       console.log('\nNext steps:');
       console.log(chalk.cyan(`  cd ${projectName}`));
       console.log(chalk.cyan('  bddai requirements analyze'));
@@ -96,8 +109,8 @@ export class InitCommand extends Command {
     }
   }
 
-  private async createProjectStructure(projectDir: string, projectName: string) {
-    const directories = [
+  private async createProjectStructure(projectDir: string, projectName: string, adapter: string = 'both') {
+    const baseDirectories = [
       'features',
       'requirements',
       'src/steps',
@@ -106,8 +119,17 @@ export class InitCommand extends Command {
       'tests/e2e',
       'docs/features',
       '.bddai',
-      '.claude/commands',
     ];
+
+    const directories = [...baseDirectories];
+
+    // Add adapter-specific directories
+    if (adapter === 'claude-code' || adapter === 'both') {
+      directories.push('.claude/commands');
+    }
+    if (adapter === 'cursor' || adapter === 'both') {
+      directories.push('.cursor');
+    }
 
     for (const dir of directories) {
       mkdirSync(join(projectDir, dir), { recursive: true });
@@ -192,8 +214,13 @@ So that I can access my protected resources
 
     writeFileSync(join(projectDir, 'features/user-authentication.feature'), exampleFeature);
 
-    // Create Claude Code commands for AI integration
-    await this.createClaudeCommands(projectDir);
+    // Create IDE adapter integrations
+    if (adapter === 'claude-code' || adapter === 'both') {
+      await this.createClaudeCommands(projectDir);
+    }
+    if (adapter === 'cursor' || adapter === 'both') {
+      await this.createCursorIntegration(projectDir);
+    }
   }
 
   private async createClaudeCommands(projectDir: string) {
@@ -319,7 +346,31 @@ ${command.content}
     }
   }
 
-  private async createConfig(projectDir: string, projectName: string) {
+  private async createCursorIntegration(projectDir: string) {
+    // Import CursorAdapter
+    const { CursorAdapter } = await import('@bddai/cursor-adapter');
+
+    // Initialize adapter
+    const adapter = new CursorAdapter({
+      projectRoot: projectDir,
+      verbose: false,
+    });
+
+    // Create Cursor integration files
+    await adapter.initialize();
+  }
+
+  private async createConfig(projectDir: string, projectName: string, adapter: string = 'both') {
+    // Determine which adapters to include in config
+    let aiAdapters: string[] = [];
+    if (adapter === 'both') {
+      aiAdapters = ['claude-code', 'cursor'];
+    } else if (adapter === 'claude-code') {
+      aiAdapters = ['claude-code'];
+    } else if (adapter === 'cursor') {
+      aiAdapters = ['cursor'];
+    }
+
     const config: ProjectConfig = {
       name: projectName,
       version: '1.0.0',
@@ -330,7 +381,7 @@ ${command.content}
       docsDirectory: 'docs',
       defaultFramework: 'jest',
       language: 'typescript',
-      aiAdapters: ['claude-code', 'cursor'],
+      aiAdapters,
       autoGenerate: {
         steps: true,
         tests: true,

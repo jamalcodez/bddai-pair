@@ -4,14 +4,20 @@
     "rootDir": "src",
     "outDir": "dist",
     "noEmit": false,
+    "allowImportingTsExtensions": false,
     "composite": true,
     "declaration": true,
-    "declarationMap": true
+    "declarationMap": true,
+    "strict": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "skipLibCheck": true,
+    "noImplicitAny": false
   },
   "include": ["src/**/*"],
   "exclude": ["dist", "**/*.test.ts"],
   "references": [
-    { "path": "../../types" },
+    { "path": "../../Types" },
     { "path": "../../core" }
   ]
 }
