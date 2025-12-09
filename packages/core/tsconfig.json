@@ -8,7 +8,12 @@
     "declaration": true,
     "declarationMap": true,
     "allowImportingTsExtensions": false,
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "strict": false,
+    "skipLibCheck": true,
+    "noImplicitAny": false
   },
   "include": ["src/**/*"],
   "exclude": ["dist", "**/*.test.ts"],

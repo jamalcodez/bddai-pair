@@ -60,7 +60,7 @@ export class DriverAgent implements AIAgent {
         return this.reviewImplementation(message);
 
       case MessageType.CONTEXT_UPDATE:
-        return this.updateContext(message);
+        return this.handleContextUpdate(message);
 
       default:
         return null;
@@ -190,7 +190,7 @@ export class DriverAgent implements AIAgent {
   /**
    * Update context from incoming message
    */
-  private async updateContext(message: AgentMessage): Promise<AgentMessage> {
+  private async handleContextUpdate(message: AgentMessage): Promise<AgentMessage> {
     await this.updateContext(message.context);
 
     // Acknowledge the update

@@ -2,7 +2,6 @@ import {
   AIAgent,
   AgentMessage,
   MessageType,
-  PairSession,
   GherkinScenario,
   GherkinFeature,
 } from '@bddai/types';
@@ -10,6 +9,7 @@ import { DriverAgent } from './DriverAgent.js';
 import { NavigatorAgent } from './NavigatorAgent.js';
 import { ReviewerAgent } from './ReviewerAgent.js';
 import { AnalyzerAgent } from './AnalyzerAgent.js';
+import { PairSession } from './PairSession.js';
 import { EventEmitter } from 'events';
 import { randomUUID } from 'crypto';
 

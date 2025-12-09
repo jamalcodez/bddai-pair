@@ -205,7 +205,7 @@ export class ScenarioGenerator {
 
     // Generate concurrent user scenarios
     scenarios.push({
-      name: `Multiple ${feature.actor || 'users'} performing actions simultaneously`,
+      name: `Multiple ${feature.name || 'users'} performing actions simultaneously`,
       tags: ['@edge-case', '@concurrent'],
       steps: [
         { keyword: 'Given', text: 'multiple users are active in the system', line: 1 },

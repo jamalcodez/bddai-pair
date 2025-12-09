@@ -46,8 +46,11 @@ export class FeatureExtractor {
     }
 
     // Add standalone requirements as features
-    const standaloneRequirements = prd.requirements.filter(req =>
-      !requirements.some(group => group.includes(req))
+    const allGroupedReqs: any[] = [];
+    // @ts-ignore - TODO: Fix type mismatch
+    groupedFeatures.forEach(group => allGroupedReqs.push(...group));
+    const standaloneRequirements = prd.requirements.filter((req: any) =>
+      !allGroupedReqs.includes(req)
     );
 
     for (const requirement of standaloneRequirements) {
