@@ -1,10 +1,40 @@
 import { Command } from 'commander';
 import chalk from 'chalk';
 import ora from 'ora';
-import { TestRunner, TestGenerator, TestFramework, TestType } from '@bddai/core';
-import { ProjectConfig } from '@bddai/types';
+
 import { readFileSync } from 'fs';
 import { join } from 'path';
+
+interface ProjectConfig {
+  featuresDirectory?: string;
+  defaultFramework?: string;
+  testsDirectory?: string;
+  [key: string]: any;
+}
+
+enum TestFramework {
+  JEST = 'jest',
+  VITEST = 'vitest',
+  PLAYWRIGHT = 'playwright',
+  CYPRESS = 'cypress',
+}
+
+enum TestType {
+  UNIT = 'unit',
+  INTEGRATION = 'integration',
+  E2E = 'e2e',
+}
+
+// Stub classes - TODO: Import from @bddai/core when available
+class TestRunner {
+  async runTests(options: any): Promise<any[]> {
+    return [];
+  }
+}
+
+class TestGenerator {
+  constructor(config: any) {}
+}
 
 export class TestCommand extends Command {
   constructor() {

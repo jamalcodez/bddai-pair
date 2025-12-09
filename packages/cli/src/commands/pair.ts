@@ -3,9 +3,15 @@ import chalk from 'chalk';
 import ora from 'ora';
 import { AgentOrchestrator } from '@bddai/core';
 import { ScenarioManager } from '@bddai/core';
-import { ProjectConfig } from '@bddai/types';
+
 import { readFileSync } from 'fs';
 import { join } from 'path';
+
+interface ProjectConfig {
+  featuresDirectory?: string;
+  defaultFramework?: string;
+  [key: string]: any;
+}
 
 export class PairCommand extends Command {
   constructor() {
@@ -35,7 +41,7 @@ class PairStartCommand extends Command {
       const config: ProjectConfig = JSON.parse(readFileSync(configPath, 'utf-8'));
 
       // Initialize scenario manager
-      const scenarioManager = new ScenarioManager(config);
+      const scenarioManager = new ScenarioManager(config as any);
       await scenarioManager.initialize();
 
       // Initialize orchestrator

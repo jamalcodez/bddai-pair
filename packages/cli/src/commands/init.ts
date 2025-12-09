@@ -4,7 +4,21 @@ import ora from 'ora';
 import inquirer from 'inquirer';
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
-import { ProjectConfig } from '@bddai/types';
+
+interface ProjectConfig {
+  name: string;
+  version: string;
+  description: string;
+  featuresDirectory: string;
+  stepsDirectory: string;
+  testsDirectory: string;
+  docsDirectory: string;
+  defaultFramework: string;
+  language: string;
+  aiAdapters: string[];
+  autoGenerate: any;
+  git: any;
+}
 
 export class InitCommand extends Command {
   constructor() {

@@ -1,9 +1,34 @@
 import { Command } from 'commander';
+
+interface ProjectConfig {
+  featuresDirectory?: string;
+  [key: string]: any;
+}
+
+// Stub type - TODO: Import from @bddai/core when available
+interface AnalysisResult {
+  prd: any;
+  gherkinFeatures: Map<string, any>;
+  features: Array<{ id: string; name: string; [key: string]: any }>;
+  recommendations: string[];
+  validation: {
+    score: number;
+    warnings: string[];
+    errors: string[];
+  };
+  summary: {
+    totalFeatures: number;
+    totalScenarios: number;
+    byPriority: Record<string, number>;
+    byComplexity: Record<string, number>;
+  };
+  scenarios: Map<string, any[]>;
+}
+
 import chalk from 'chalk';
 import ora from 'ora';
 import inquirer from 'inquirer';
 import { RequirementsAnalyzer } from '@bddai/core';
-import { AnalysisResult } from '@bddai/types';
 import { writeFileSync, existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
 
@@ -358,10 +383,10 @@ class RequirementsExportCommand extends Command {
       let defaultFileName: string;
 
       if (format.toLowerCase() === 'json') {
-        content = await analyzer.exportToJSON(result);
+        content = await analyzer.exportToJSON(result as any);
         defaultFileName = 'requirements-analysis.json';
       } else if (format.toLowerCase() === 'markdown') {
-        content = await analyzer.exportToMarkdown(result);
+        content = await analyzer.exportToMarkdown(result as any);
         defaultFileName = 'requirements-analysis.md';
       } else {
         throw new Error(`Unsupported format: ${format}`);

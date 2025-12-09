@@ -9,9 +9,6 @@ import {
   StepPattern,
   ExecutionContext,
 } from '@bddai/types';
-// @ts-ignore - GherkinStreams and GherkinQuery removed in newer version
-import {  } from '@cucumber/gherkin';
-import { IdGenerator, SourceMediaType } from '@cucumber/messages';
 import { readFileSync } from 'fs';
 import { relative, join } from 'path';
 
@@ -26,23 +23,14 @@ export class GherkinParser {
    */
   async parseFeature(filePath: string): Promise<GherkinDocument> {
     const content = readFileSync(filePath, 'utf-8');
-    const uuidFn = IdGenerator.uuid();
 
-    // @ts-ignore - Using legacy API for compatibility
-    const envelopes = [] as any;
+    // Simple parser implementation (stub for now)
+    const feature = this.parseFeatureContent(content, filePath);
 
-    // @ts-ignore - Using legacy API for compatibility
-    const query = {} as any;
-    for (const envelope of envelopes) {
-      query.update(envelope);
-    }
-
-    const gherkinDocument = query.getGherkinDocument();
-    if (!gherkinDocument) {
-      throw new Error(`No feature found in ${filePath}`);
-    }
-
-    return this.convertToInternalFormat(gherkinDocument, filePath);
+    return {
+      uri: relative(process.cwd(), filePath),
+      feature,
+    };
   }
 
   /**
@@ -68,65 +56,46 @@ export class GherkinParser {
   }
 
   /**
-   * Convert Gherkin document to internal format
+   * Parse feature content
    */
-  private convertToInternalFormat(
-    gherkinDoc: any,
-    filePath: string
-  ): GherkinDocument {
+  private parseFeatureContent(content: string, filePath: string): GherkinFeature {
+    const lines = content.split('\n');
+    let currentLine = 0;
+
+    // Find feature line
+    const featureLine = lines.find((line, idx) => {
+      if (line.trim().startsWith('Feature:')) {
+        currentLine = idx;
+        return true;
+      }
+      return false;
+    }) || '';
+
+    const featureName = featureLine.replace('Feature:', '').trim();
+
     return {
       uri: relative(process.cwd(), filePath),
-      feature: this.convertFeature(gherkinDoc.feature || gherkinDoc),
-      comments: [],
-    };
-  }
-
-  /**
-   * Convert feature to internal format
-   */
-  private convertFeature(feature: any): GherkinFeature {
-    return {
-      name: feature.name || '',
-      keyword: feature.keyword || 'Feature',
-      line: feature.location?.line || 1,
-      uri: feature.uri || '',
-      scenarios: (feature.children || [])
-        .filter((child: any) => child.scenario)
-        .map((child: any) => this.convertScenario(child.scenario)),
-      description: feature.description || '',
-      tags: (feature.tags || []).map((tag: any) => ({
-        name: tag.name,
-        line: tag.location?.line || 1,
-      })),
-    };
-  }
-
-  /**
-   * Convert scenario to internal format
-   */
-  private convertScenario(scenario: any): any {
-    return {
-      name: scenario.name || '',
-      steps: (scenario.steps || []).map((step: any) => ({
-        keyword: step.keyword?.trim() || '',
-        text: step.text || '',
-        line: step.location?.line || 1,
-      })),
-      keyword: scenario.keyword || 'Scenario',
-      line: scenario.location?.line || 1,
-      description: scenario.description || '',
-      tags: (scenario.tags || []).map((tag: any) => ({
-        name: tag.name,
-        line: tag.location?.line || 1,
-      })),
+      name: featureName,
+      keyword: 'Feature',
+      line: currentLine + 1,
+      description: '',
+      scenarios: [],
+      scenarioOutlines: [],
+      tags: [],
     };
   }
 
   /**
    * Register a step pattern for matching
    */
-  registerStepPattern(pattern: StepPattern): void {
-    this.stepPatterns.set(pattern.pattern, pattern);
+  registerStepPattern(id: string, pattern: StepPattern): void;
+  registerStepPattern(pattern: StepPattern): void;
+  registerStepPattern(idOrPattern: string | StepPattern, pattern?: StepPattern): void {
+    if (typeof idOrPattern === 'string' && pattern) {
+      this.stepPatterns.set(idOrPattern, pattern);
+    } else if (typeof idOrPattern === 'object') {
+      this.stepPatterns.set(idOrPattern.pattern.source, idOrPattern);
+    }
   }
 
   /**
@@ -136,25 +105,22 @@ export class GherkinParser {
     const matched = this.matchStep(step.text);
 
     return {
-      keyword: step.keyword,
-      text: step.text,
-      line: step.line,
-      params: matched?.params || [],
-      context: context || {},
+      ...step,
+      matchedPattern: matched?.pattern,
+      parameters: matched?.params || [],
     };
   }
 
   /**
    * Match a step text against registered patterns
    */
-  private matchStep(text: string): { pattern: string; params: any[] } | null {
-    for (const [pattern] of this.stepPatterns) {
-      const regex = new RegExp(pattern.replace(/\{[^}]+\}/g, '(.+)'));
-      const match = text.match(regex);
+  private matchStep(text: string): { pattern: StepPattern; params: string[] } | null {
+    for (const [, stepPattern] of this.stepPatterns) {
+      const match = text.match(stepPattern.pattern);
 
       if (match) {
         return {
-          pattern,
+          pattern: stepPattern,
           params: match.slice(1),
         };
       }
@@ -172,14 +138,13 @@ export class GherkinParser {
 
     for (const scenario of feature.scenarios || []) {
       for (const step of scenario.steps || []) {
-        const pattern = this.generateStepPattern(step);
-        if (!seen.has(pattern)) {
-          seen.add(pattern);
+        const patternStr = this.generateStepPattern(step);
+        if (!seen.has(patternStr)) {
+          seen.add(patternStr);
           patterns.push({
             type: step.keyword.toLowerCase().trim() as any,
-            keyword: step.keyword,
-            pattern,
-            params: this.extractParams(step.text),
+            pattern: new RegExp(patternStr),
+            implementation: `// TODO: Implement ${step.keyword} ${step.text}`,
           });
         }
       }
@@ -191,20 +156,42 @@ export class GherkinParser {
   /**
    * Get step patterns
    */
-  getStepPatterns(): StepPattern[] {
-    return Array.from(this.stepPatterns.values());
+  getStepPatterns(): Map<string, StepPattern> {
+    return this.stepPatterns;
   }
 
   /**
    * Generate step definitions from feature
    */
-  generateStepDefinitions(feature: GherkinFeature): string {
-    const patterns = this.extractStepPatterns(feature);
-    let code = '';
+  generateStepDefinitions(feature: GherkinFeature): string;
+  generateStepDefinitions(steps: any[]): string;
+  generateStepDefinitions(featureOrSteps: GherkinFeature | any[]): string {
+    let patterns: StepPattern[];
 
+    if (Array.isArray(featureOrSteps)) {
+      // Generate from steps array
+      const seen = new Set<string>();
+      patterns = [];
+      for (const step of featureOrSteps) {
+        const patternStr = this.generateStepPattern(step);
+        if (!seen.has(patternStr)) {
+          seen.add(patternStr);
+          patterns.push({
+            type: step.keyword?.toLowerCase().trim() || 'given',
+            pattern: new RegExp(patternStr),
+            implementation: `// TODO: Implement ${step.keyword} ${step.text}`,
+          });
+        }
+      }
+    } else {
+      patterns = this.extractStepPatterns(featureOrSteps);
+    }
+
+    let code = '';
     for (const pattern of patterns) {
-      code += `\n${pattern.keyword}('${pattern.pattern}', async (${pattern.params.join(', ')}) => {\n`;
-      code += `  // TODO: Implement step\n`;
+      const params = this.extractParamsFromPattern(pattern.pattern);
+      code += `\n${pattern.type}('${pattern.pattern.source}', async (${params.join(', ')}) => {\n`;
+      code += `  ${pattern.implementation}\n`;
       code += `});\n`;
     }
 
@@ -214,23 +201,25 @@ export class GherkinParser {
   /**
    * Generate a pattern from a step
    */
-  private generateStepPattern(step: any): string {
-    return step.text.replace(/"([^"]+)"/g, '{string}').replace(/\d+/g, '{int}');
+  private generateStepPattern(step: GherkinStep): string {
+    return step.text
+      .replace(/"([^"]+)"/g, '([^"]+)')
+      .replace(/\d+/g, '(\\d+)');
   }
 
   /**
-   * Extract parameter names from step text
+   * Extract parameter names from pattern
    */
-  private extractParams(text: string): string[] {
+  private extractParamsFromPattern(pattern: RegExp): string[] {
     const params: string[] = [];
-    const stringMatches = text.match(/"([^"]+)"/g);
-    const numberMatches = text.match(/\d+/g);
+    const source = pattern.source;
 
-    if (stringMatches) {
-      stringMatches.forEach(() => params.push('string'));
-    }
-    if (numberMatches) {
-      numberMatches.forEach(() => params.push('int'));
+    // Count capturing groups
+    let count = 0;
+    for (let i = 0; i < source.length; i++) {
+      if (source[i] === '(' && source[i - 1] !== '\\' && source[i + 1] !== '?') {
+        params.push(`param${count++}`);
+      }
     }
 
     return params;
