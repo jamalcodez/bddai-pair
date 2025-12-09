@@ -2,10 +2,17 @@ import { Command } from 'commander';
 import chalk from 'chalk';
 import ora from 'ora';
 import inquirer from 'inquirer';
-import { ScenarioManager, ScenarioParser } from '@bddai/core';
-import { ProjectConfig } from '@bddai/types';
+import { ScenarioManager } from '@bddai/core';
+
 import { readFileSync, existsSync } from 'fs';
+import { writeFileSync } from "fs";
 import { join } from 'path';
+
+interface ProjectConfig {
+  featuresDirectory?: string;
+  defaultFramework?: string;
+  [key: string]: any;
+}
 
 export class FeatureCommand extends Command {
   private scenarioManager?: ScenarioManager;
@@ -27,7 +34,7 @@ export class FeatureCommand extends Command {
       const config: ProjectConfig = JSON.parse(readFileSync(configPath, 'utf-8'));
 
       // Initialize scenario manager
-      this.scenarioManager = new ScenarioManager(config);
+      this.scenarioManager = new ScenarioManager(config as any);
       await this.scenarioManager.initialize();
     }
     return this.scenarioManager;
@@ -217,9 +224,11 @@ class FeatureReviewCommand extends Command {
 
   private async execute(featureName: string, options?: any) {
     try {
+      const parentCommand = this.parent?.parent as FeatureCommand;
+      const scenarioManager = await parentCommand.initScenarioManager();
+
       // Find feature file
       const featuresDir = join(process.cwd(), 'features');
-      const parser = new ScenarioParser();
 
       let featurePath: string;
       if (existsSync(featureName)) {
@@ -239,9 +248,10 @@ class FeatureReviewCommand extends Command {
         featurePath = join(featuresDir, featureFile);
       }
 
-      // Parse feature
-      const document = await parser.parseFeature(featurePath);
-      const feature = document.feature;
+      // Get feature from scenario manager
+      const features = scenarioManager.getAllFeatures();
+      const featureDoc = features.find(f => f.uri === featurePath);
+      const feature = featureDoc?.feature;
 
       if (!feature) {
         throw new Error('No feature found in file');

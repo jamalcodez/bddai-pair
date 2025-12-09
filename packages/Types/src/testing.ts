@@ -51,7 +51,7 @@ export const TestResultSchema = z.object({
   failures: z.array(z.object({
     scenario: z.string(),
     error: z.string(),
-    stack?: z.string(),
+    stack: z.string().optional(),
   })),
   coverage: z.object({
     lines: z.number(),

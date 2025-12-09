@@ -4,3 +4,5 @@ export * from './pair.js';
 export * from './test.js';
 export * from './docs.js';
 export * from './validate.js';
+export * from './requirements.js';
+export * from './upgrade.js';

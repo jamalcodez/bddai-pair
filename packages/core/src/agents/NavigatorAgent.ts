@@ -57,7 +57,7 @@ export class NavigatorAgent implements AIAgent {
         return this.handleQuestion(message);
 
       case MessageType.CONTEXT_UPDATE:
-        return this.updateContext(message);
+        return this.handleContextUpdate(message);
 
       case MessageType.ERROR:
         return this.handleError(message);
@@ -164,7 +164,7 @@ export class NavigatorAgent implements AIAgent {
   /**
    * Update context from incoming message
    */
-  private async updateContext(message: AgentMessage): Promise<AgentMessage> {
+  private async handleContextUpdate(message: AgentMessage): Promise<AgentMessage> {
     await this.updateContext(message.context);
 
     return {

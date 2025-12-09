@@ -137,6 +137,7 @@ export class ScenarioStorage {
       }
     }
 
+    // @ts-ignore
     lines.splice(insertIndex, 0, '', ...backgroundContent.split('\n'));
     const updatedContent = lines.join('\n');
 

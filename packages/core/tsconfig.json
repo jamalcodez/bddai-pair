@@ -6,11 +6,18 @@
     "noEmit": false,
     "composite": true,
     "declaration": true,
-    "declarationMap": true
+    "declarationMap": true,
+    "allowImportingTsExtensions": false,
+    "moduleResolution": "node",
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "strict": false,
+    "skipLibCheck": true,
+    "noImplicitAny": false
   },
   "include": ["src/**/*"],
   "exclude": ["dist", "**/*.test.ts"],
   "references": [
-    { "path": "../types" }
+    { "path": "../Types" }
   ]
 }

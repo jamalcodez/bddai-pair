@@ -141,7 +141,7 @@ export class TestGenerator {
     const stepName = this.createStepName(step.text);
 
     return `
-${type.charAt(0).toUpperCase() + type.slice(1)}(${this.createPatternFromStep(step.source)}, async function (${this.getParameters(step.text)}) {
+${type.charAt(0).toUpperCase() + type.slice(1)}(${this.createPatternFromStep((step as any).source)}, async function (${this.getParameters(step.text)}) {
   // TODO: Implement step for: ${step.text}
   throw new Error('Step not implemented');
 });`;

@@ -56,7 +56,7 @@ export class AnalyzerAgent implements AIAgent {
         return this.handleAnalysisQuestion(message);
 
       case MessageType.CONTEXT_UPDATE:
-        return this.updateContext(message);
+        return this.handleContextUpdate(message);
 
       default:
         return null;
@@ -156,7 +156,7 @@ export class AnalyzerAgent implements AIAgent {
   /**
    * Update context from incoming message
    */
-  private async updateContext(message: AgentMessage): Promise<AgentMessage> {
+  private async handleContextUpdate(message: AgentMessage): Promise<AgentMessage> {
     await this.updateContext(message.context);
 
     return {

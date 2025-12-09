@@ -205,7 +205,7 @@ export class ScenarioGenerator {
 
     // Generate concurrent user scenarios
     scenarios.push({
-      name: `Multiple ${feature.actor || 'users'} performing actions simultaneously`,
+      name: `Multiple ${feature.name || 'users'} performing actions simultaneously`,
       tags: ['@edge-case', '@concurrent'],
       steps: [
         { keyword: 'Given', text: 'multiple users are active in the system', line: 1 },
@@ -297,8 +297,8 @@ export class ScenarioGenerator {
         tags: ['@integration', `@dependency-${dependency}`],
         steps: [
           { keyword: 'Given', text: `${dependency} service is available`, line: 1 },
-          { keyword: 'And', text: 'the system is configured to use ${dependency}`, line: 2 },
-          { keyword: 'When', text: 'the feature needs to communicate with ${dependency}`, line: 3 },
+          { keyword: 'And', text: `the system is configured to use ${dependency}`, line: 2 },
+          { keyword: 'When', text: `the feature needs to communicate with ${dependency}`, line: 3 },
           { keyword: 'Then', text: 'the integration should work seamlessly', line: 4 },
           { keyword: 'And', text: 'data should be synchronized correctly', line: 5 },
         ],
