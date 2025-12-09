@@ -6,12 +6,14 @@
     "noEmit": false,
     "composite": true,
     "declaration": true,
-    "declarationMap": true
+    "declarationMap": true,
+    "allowImportingTsExtensions": false,
+    "moduleResolution": "node"
   },
   "include": ["src/**/*"],
   "exclude": ["dist", "**/*.test.ts"],
   "references": [
-    { "path": "../types" },
+    { "path": "../Types" },
     { "path": "../core" }
   ]
 }

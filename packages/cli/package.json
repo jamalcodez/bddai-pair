@@ -29,7 +29,6 @@
     "ora": "^7.0.0",
     "figlet": "^1.7.0",
     "fs-extra": "^11.2.0",
-    "ora-classic": "^1.0.0",
     "listr2": "^7.0.0"
   },
   "devDependencies": {
