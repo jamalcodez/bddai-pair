@@ -10,6 +10,7 @@ import { PairCommand } from './commands/pair.js';
 import { TestCommand } from './commands/test.js';
 import { DocsCommand } from './commands/docs.js';
 import { ValidateCommand } from './commands/validate.js';
+import { UpgradeCommand } from './commands/upgrade.js';
 
 const program = new Command();
 
@@ -32,6 +33,7 @@ program
 
 // Add commands
 program.addCommand(new InitCommand());
+program.addCommand(new UpgradeCommand());
 program.addCommand(new RequirementsCommand());
 program.addCommand(new FeatureCommand());
 program.addCommand(new PairCommand());
