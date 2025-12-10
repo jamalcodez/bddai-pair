@@ -73,6 +73,7 @@ export interface AIAgent {
  * Driver Agent configuration
  */
 export interface DriverAgentConfig {
+  projectRoot?: string;
   preferences?: {
     architectureStyle: string[];
     designPatterns: string[];
@@ -89,6 +90,7 @@ export interface DriverAgentConfig {
  * Navigator Agent configuration
  */
 export interface NavigatorAgentConfig {
+  projectRoot?: string;
   specialties?: string[];
   preferences?: {
     codeStyle: string;
@@ -106,6 +108,7 @@ export interface NavigatorAgentConfig {
  * Reviewer Agent configuration
  */
 export interface ReviewerAgentConfig {
+  projectRoot?: string;
   reviewFocus?: {
     correctness: boolean;
     performance: boolean;

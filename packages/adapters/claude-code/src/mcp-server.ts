@@ -8,7 +8,6 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 import fs from 'fs/promises';
 import path from 'path';
-import { glob } from 'glob';
 
 /**
  * Simple MCP Server for BDD-AI
@@ -113,7 +112,10 @@ class BDDAIServer {
       try {
         switch (name) {
           case 'read_scenario':
-            return await this.readScenario(args.feature as string);
+            if (!args || typeof args.feature !== 'string') {
+              throw new Error('Missing required parameter: feature');
+            }
+            return await this.readScenario(args.feature);
 
           case 'read_conventions':
             return await this.readConventions();
@@ -122,13 +124,16 @@ class BDDAIServer {
             return await this.listFeatures();
 
           case 'list_scenarios':
-            return await this.listScenarios(args.feature as string);
+            if (!args || typeof args.feature !== 'string') {
+              throw new Error('Missing required parameter: feature');
+            }
+            return await this.listScenarios(args.feature);
 
           case 'read_scenario_detail':
-            return await this.readScenarioDetail(
-              args.feature as string,
-              args.scenario as string
-            );
+            if (!args || typeof args.feature !== 'string' || typeof args.scenario !== 'string') {
+              throw new Error('Missing required parameters: feature and scenario');
+            }
+            return await this.readScenarioDetail(args.feature, args.scenario);
 
           default:
             throw new Error(`Unknown tool: ${name}`);
