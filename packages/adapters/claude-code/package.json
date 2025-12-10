@@ -5,6 +5,9 @@
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "bin": {
+    "bddai-mcp-server": "./dist/mcp-server.js"
+  },
   "files": [
     "dist",
     "README.md"
@@ -17,10 +20,13 @@
   },
   "dependencies": {
     "@bddai/core": "workspace:*",
-    "@bddai/types": "workspace:*"
+    "@bddai/types": "workspace:*",
+    "@modelcontextprotocol/sdk": "^0.5.0",
+    "glob": "^10.3.10"
   },
   "devDependencies": {
-    "vitest": "^1.0.0"
+    "vitest": "^1.0.0",
+    "@types/node": "^20.0.0"
   },
   "peerDependencies": {
     "@anthropic-ai/sdk": ">=0.24.0"

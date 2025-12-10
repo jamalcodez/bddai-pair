@@ -505,4 +505,148 @@ export class ScenarioGenerator {
       steps: scenario.steps,
     };
   }
+
+  /**
+   * Export feature and scenarios to markdown files
+   */
+  async exportToMarkdown(
+    feature: ExtractedFeature,
+    scenarios: GeneratedScenario[],
+    outputDir: string
+  ): Promise<{featureFile: string; scenarioFiles: string[]}> {
+    const fs = await import('fs/promises');
+    const path = await import('path');
+
+    // Create directories
+    const featuresDir = path.join(outputDir, 'features');
+    const scenariosDir = path.join(outputDir, 'scenarios', this.toKebabCase(feature.name));
+
+    await fs.mkdir(featuresDir, { recursive: true });
+    await fs.mkdir(scenariosDir, { recursive: true });
+
+    // Export main feature file
+    const featureFile = path.join(featuresDir, `${this.toKebabCase(feature.name)}.feature`);
+    const featureContent = this.toGherkinMarkdown(feature, scenarios);
+    await fs.writeFile(featureFile, featureContent);
+
+    // Export individual scenario files
+    const scenarioFiles: string[] = [];
+    for (const scenario of scenarios) {
+      const scenarioFile = path.join(scenariosDir, `${this.toKebabCase(scenario.name)}.md`);
+      const scenarioContent = this.scenarioToMarkdown(scenario, feature);
+      await fs.writeFile(scenarioFile, scenarioContent);
+      scenarioFiles.push(scenarioFile);
+    }
+
+    return { featureFile, scenarioFiles };
+  }
+
+  /**
+   * Convert feature and scenarios to Gherkin markdown
+   */
+  private toGherkinMarkdown(feature: ExtractedFeature, scenarios: GeneratedScenario[]): string {
+    const lines: string[] = [];
+
+    // Tags
+    lines.push(`@priority-${feature.priority}`);
+    lines.push(`@complexity-${feature.complexity}`);
+    lines.push('');
+
+    // Feature
+    lines.push(`Feature: ${feature.name}`);
+    if (feature.description) {
+      lines.push(`  ${feature.description}`);
+    }
+    lines.push('');
+
+    // Scenarios
+    for (const scenario of scenarios) {
+      // Tags
+      if (scenario.tags.length > 0) {
+        lines.push(`  ${scenario.tags.join(' ')}`);
+      }
+
+      // Scenario
+      lines.push(`  Scenario: ${scenario.name}`);
+      if (scenario.description) {
+        lines.push(`    ${scenario.description}`);
+      }
+
+      // Steps
+      for (const step of scenario.steps) {
+        lines.push(`    ${step.keyword} ${step.text}`);
+      }
+
+      lines.push('');
+    }
+
+    return lines.join('\n');
+  }
+
+  /**
+   * Convert scenario to markdown
+   */
+  private scenarioToMarkdown(scenario: GeneratedScenario, feature: ExtractedFeature): string {
+    const lines: string[] = [];
+
+    // Metadata
+    lines.push(`# Scenario: ${scenario.name}`);
+    lines.push('');
+    lines.push(`**Feature:** ${feature.name}`);
+    lines.push(`**Type:** ${scenario.type}`);
+    lines.push(`**Source:** ${scenario.source}`);
+    lines.push(`**Confidence:** ${(scenario.confidence * 100).toFixed(0)}%`);
+    lines.push('');
+
+    // Tags
+    if (scenario.tags.length > 0) {
+      lines.push(`**Tags:** ${scenario.tags.join(', ')}`);
+      lines.push('');
+    }
+
+    // Description
+    if (scenario.description) {
+      lines.push(`## Description`);
+      lines.push('');
+      lines.push(scenario.description);
+      lines.push('');
+    }
+
+    // Gherkin
+    lines.push(`## Scenario`);
+    lines.push('');
+    lines.push('```gherkin');
+    lines.push(`Scenario: ${scenario.name}`);
+    for (const step of scenario.steps) {
+      lines.push(`  ${step.keyword} ${step.text}`);
+    }
+    lines.push('```');
+    lines.push('');
+
+    // Implementation status
+    lines.push(`## Implementation Status`);
+    lines.push('');
+    lines.push('- [ ] Not started');
+    lines.push('- [ ] In progress');
+    lines.push('- [ ] Completed');
+    lines.push('');
+
+    // Notes
+    lines.push(`## Notes`);
+    lines.push('');
+    lines.push('<!-- Add implementation notes here -->');
+    lines.push('');
+
+    return lines.join('\n');
+  }
+
+  /**
+   * Convert string to kebab-case
+   */
+  private toKebabCase(str: string): string {
+    return str
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  }
 }

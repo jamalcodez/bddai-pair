@@ -146,18 +146,18 @@ class RequirementsAnalyzeCommand extends Command {
         mkdirSync(outputDir, { recursive: true });
       }
 
-      // Save generated features
-      spinner.text = 'Saving generated features...';
-      for (const [featureId, gherkinFeature] of result.gherkinFeatures) {
-        const feature = result.features.find(f => f.id === featureId);
-        if (feature) {
-          const fileName = `${feature.name.toLowerCase().replace(/\s+/g, '-')}.feature`;
-          const content = this.formatGherkinFeature(gherkinFeature);
-          writeFileSync(join(outputDir, fileName), content);
-        }
-      }
+      // Save generated features to bddai/ directory (markdown format)
+      spinner.text = 'Saving features and scenarios to bddai/...';
+      const bddaiDir = join(process.cwd(), 'bddai');
+      const exported = await analyzer.exportToMarkdownFiles(result as any, bddaiDir);
 
       spinner.succeed(chalk.green('Requirements analysis completed!'));
+
+      // Show what was created
+      console.log(chalk.bold('\n📁 Created Files:'));
+      console.log(chalk.gray(`  ✓ Analysis report: ${exported.reportFile}`));
+      console.log(chalk.gray(`  ✓ Feature files: ${exported.featureFiles.length} files`));
+      console.log(chalk.gray(`  ✓ Scenario files: ${exported.scenarioFiles.length} files`));
 
       // Display summary
       this.displayAnalysisResult(result);
