@@ -10,6 +10,7 @@ import {
   GherkinFeature,
 } from '@bddai/types';
 import { randomUUID } from 'crypto';
+import { MarkdownContextReader } from './MarkdownContextReader.js';
 
 /**
  * Navigator Agent - Responsible for implementation, debugging, and problem-solving
@@ -22,6 +23,7 @@ export class NavigatorAgent implements AIAgent {
   capabilities: AgentCapabilities;
   private config: NavigatorAgentConfig;
   private context: Record<string, any> = {};
+  private contextReader: MarkdownContextReader;
 
   constructor(config: NavigatorAgentConfig = {}) {
     this.id = randomUUID();
@@ -36,14 +38,35 @@ export class NavigatorAgent implements AIAgent {
       maxTokens: 4000,
     };
     this.config = config;
+    this.contextReader = new MarkdownContextReader(config.projectRoot);
   }
 
   async initialize(config: Record<string, any>): Promise<void> {
     this.config = { ...this.config, ...config };
+
+    // Load project conventions from markdown
+    const projectConventions = await this.contextReader.readProjectConventions();
+
     this.context = {
       code: {},
       tests: {},
       implementations: [],
+      projectConventions,
+      fileStructure: projectConventions
+        ? this.contextReader.extractFileStructure(projectConventions)
+        : null,
+      namingConventions: projectConventions
+        ? this.contextReader.extractNamingConventions(projectConventions)
+        : null,
+      codePatterns: projectConventions
+        ? this.contextReader.extractCodePatterns(projectConventions)
+        : null,
+      framework: projectConventions
+        ? this.contextReader.extractFramework(projectConventions)
+        : 'Unknown',
+      techStack: projectConventions
+        ? this.contextReader.extractTechStack(projectConventions)
+        : [],
       ...config.initialContext,
     };
   }

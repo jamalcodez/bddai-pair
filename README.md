@@ -1,20 +1,50 @@
 # BDD-AI Pair
 
-Behavior-Driven Development with AI Pair Programming Framework
+**Stop AI Hallucination. Ground AI in Your Actual Requirements.**
 
-## Overview
+BDD-AI Pair prevents AI hallucination by grounding AI responses in structured BDD scenarios and project conventions stored as simple markdown files.
 
-BDD-AI Pair is a development framework that combines Behavior-Driven Development (BDD) with AI pair programming workflows. It enables two specialized AI agents to collaborate on implementation under human supervision, with all development driven by Gherkin scenarios that serve as both requirements and automated tests.
+## The Problem
+
+When you ask AI to "implement user authentication," it often:
+- ❌ Invents file paths that don't exist in your project
+- ❌ Uses naming conventions that don't match your codebase
+- ❌ Creates features you never asked for
+- ❌ Generates code incompatible with your tech stack
+
+**This is AI hallucination.**
+
+## The Solution
+
+BDD-AI Pair gives AI two things:
+1. **What to build** - BDD scenarios generated from your PRDs
+2. **How to build it** - Your project's actual conventions and patterns
+
+All stored as **human-readable markdown files** that AI reads before generating code.
+
+**No vector databases. No embeddings. Just markdown.**
+
+## How It Works
+
+1. **You write** a Product Requirements Document (PRD) in natural language
+2. **BDD-AI analyzes** your PRD and generates structured BDD scenarios
+3. **Scenarios are saved** as markdown files in `bddai/` directory
+4. **AI reads scenarios** from markdown before generating code
+5. **You get grounded code** that matches your actual requirements
+
+```
+Your PRD → BDD Scenarios → Markdown Files → AI Reads → Grounded Code
+```
 
 ## Features
 
-- **Behavior-First Development**: All development starts with Gherkin scenarios defining expected behavior
-- **PRD Integration**: Natural language requirements automatically convert to BDD scenarios
-- **AI Pair Programming**: Specialized Driver and Navigator AI agents collaborate on implementation
-- **Living Documentation**: Scenarios serve as both documentation and automated tests
-- **Multi-Platform Support**: Works with Claude Code, Cursor, and other AI coding tools
-- **Automated Test Generation**: Generate tests directly from Gherkin scenarios
-- **Type Safety**: Full TypeScript implementation
+- ✅ **No Hallucination** - AI grounded in actual requirements
+- ✅ **Project-Aware** - AI uses YOUR conventions, not generic templates
+- ✅ **Human-Readable** - All scenarios are markdown you can read/edit
+- ✅ **Git-Friendly** - Version control your scenarios with code
+- ✅ **Simple Setup** - No vector DBs, no embeddings, just markdown
+- ✅ **Works Anywhere** - Claude Code (MCP), Cursor (.cursorrules), any IDE
+- ✅ **Auto-Detection** - Detects Next.js, React, Express patterns automatically
 
 ## Architecture
 
@@ -50,190 +80,99 @@ BDD-AI Pair is a development framework that combines Behavior-Driven Development
 
 ## Quick Start
 
-### Prerequisites
-
-Before you begin, ensure you have:
-
-- **Node.js** version 18 or higher
-- **pnpm** package manager (recommended)
-- **TypeScript** knowledge
-- **AI Coding Tool**: Claude Code, Cursor, or similar MCP-compatible tool
-- **Git** for version control
-
 ```bash
-# Verify Node.js version
-node --version  # Should be 18.x or higher
+# 1. Install (when published, or build from source)
+npm install -g @bddai/cli
 
-# Install pnpm if not already installed
-npm install -g pnpm
-```
-
-### Installation
-
-Since BDD-AI Pair is currently in development, install from source:
-
-```bash
-# Clone the repository
-git clone https://github.com/jamalcodez/bddai-pair.git
-cd bddai-pair
-
-# Install dependencies
-pnpm install
-
-# Build the packages
-pnpm build
-
-# Make CLI available globally
-pnpm link
-```
-
-### Configure AI Tool Integration
-
-Choose your preferred AI coding tool:
-
-**For Claude Code:**
-```bash
-# Claude Code should have access to the project directory
-# No additional setup needed if using from the project folder
-```
-
-**For Cursor:**
-```bash
-# Ensure Cursor has MCP server access to the project
-# Install Cursor adapter if needed
-```
-
-### Initialize a New Project
-
-```bash
-# Create a new directory for your project
-mkdir my-bdd-project
-cd my-bdd-project
-
-# Initialize with BDD-AI Pair
+# 2. Initialize in your existing project
+cd my-nextjs-app
 bddai init
 
-# Install dependencies
-pnpm install
+# 3. Add your PRD
+vim requirements/my-feature.prd
+
+# 4. Generate grounded scenarios
+bddai requirements analyze
+
+# 5. Code with AI - scenarios ground the AI automatically!
 ```
 
-This creates:
+**What you get:**
 ```
-my-bdd-project/
-├── requirements/        # For your PRD files
-├── features/           # Generated Gherkin features
-├── src/steps/          # Step definitions
-├── tests/              # Test files
-├── .bddai/             # Configuration
-└── docs/features/      # Documentation
-```
-
-### Step 1: Create Your First PRD
-
-Create a PRD file in the requirements directory:
-
-```bash
-# Create a new PRD file
-touch requirements/user-authentication.prd
+my-project/
+├── bddai/
+│   ├── project.md           # Auto-detected: Next.js patterns, file structure
+│   ├── features/            # BDD scenarios from your PRD
+│   │   └── user-auth.feature
+│   └── scenarios/           # Detailed scenario markdown
+│       └── user-auth/
+│           ├── successful-login.md
+│           └── password-reset.md
+├── requirements/
+│   └── my-feature.prd       # Your PRD
+├── .cursorrules            # Cursor: read scenarios before coding
+└── .claude/
+    └── mcp-setup.md        # Claude Code: MCP server instructions
 ```
 
-Edit the file with your requirements:
+**Now when you ask AI to "implement user login":**
+- ✅ AI reads `bddai/features/user-auth.feature`
+- ✅ AI reads `bddai/project.md` for your conventions
+- ✅ AI generates code matching YOUR requirements & patterns
+- ✅ **NO HALLUCINATION**
 
+## Complete Workflow
+
+See [WORKFLOW.md](./WORKFLOW.md) for a complete step-by-step guide with examples.
+
+**Quick example:**
+
+1. **Your PRD** (`requirements/auth.prd`):
 ```markdown
-# User Authentication PRD
+# User Authentication
 
-## Overview
-This document outlines the requirements for the user authentication system.
-
-## User Stories
-
-### As a user
-I want to authenticate with my credentials
-So that I can access my protected resources
+## User Story
+As a user, I want to login with email/password
+so I can access protected resources.
 
 **Acceptance Criteria:**
-- Users can register with email and password
-- Users can login with valid credentials
-- Users receive a JWT token upon successful login
-- Tokens expire after 24 hours
-
-## Features
-
-### User Registration
-- New users can register with email and password
-- Password strength validation
-- Email verification required
-- Duplicate email prevention
-
-### User Login
-- Users authenticate with email/password
-- JWT token generation
-- Session management
-- Account lockout after failed attempts
+- JWT token generated on success
+- Token expires in 24 hours
+- Rate limiting on failed attempts
 ```
 
-### Step 2: Add PRD to Project
-
+2. **Generate scenarios:**
 ```bash
-# Add the PRD file to your project
-bddai requirements add requirements/user-authentication.prd
-
-# This analyzes the PRD and prepares it for feature generation
+bddai requirements analyze
 ```
 
-### Step 3: Generate BDD Features
-
-```bash
-# Analyze the PRD and generate BDD features
-bddai requirements analyze user-authentication
-
-# This creates:
-# - features/user-authentication/login.feature
-# - features/user-authentication/registration.feature
-# - Analysis report with quality scores
-```
-
-### Step 4: Review Generated Features
-
-The system automatically converts your PRD into Gherkin scenarios:
-
+3. **AI reads this** (`bddai/features/user-authentication.feature`):
 ```gherkin
-Feature: User Login
-  As a user
-  I want to authenticate with my credentials
-  So that I can access my protected resources
-
-  Scenario: Successful login with valid credentials
-    Given a user exists with email "user@example.com" and password "ValidPass123!"
-    When the user submits login request with valid credentials
-    Then the system should return a JWT token
-    And the token should be valid for 24 hours
+Scenario: Successful login
+  Given a user exists with email "user@example.com"
+  When the user submits valid credentials
+  Then a JWT token should be generated
+  And the token should expire in 24 hours
 ```
 
-### Step 5: Start AI Pair Programming
+4. **AI generates grounded code** (reads your project.md patterns):
+```typescript
+// Matches YOUR file structure from project.md
+// Uses YOUR naming from project.md
+// Implements ALL scenario steps
+async login(email: string, password: string) {
+  // Implements: "user submits valid credentials"
+  const user = await this.validateCredentials(email, password);
 
-```bash
-# Start AI pair programming session
-bddai pair start user-authentication
+  // Implements: "JWT token should be generated"
+  // Implements: "token should expire in 24 hours"
+  const token = this.jwtService.sign(
+    { userId: user.id },
+    { expiresIn: '24h' }
+  );
 
-# Your AI tool will now help implement the feature
-# based on the generated scenarios
-
-# Generate step definitions when ready
-bddai generate steps user-authentication
-
-# Run tests to verify implementation
-bddai test
-```
-
-### Step 6: Validate and Export
-
-```bash
-# Validate requirement quality
-bddai requirements validate user-authentication
-
-# Export analysis for stakeholders
-bddai requirements export user-authentication --format markdown
+  return { user, token };
+}
 ```
 
 ## Packages

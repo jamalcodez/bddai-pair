@@ -378,4 +378,45 @@ export class RequirementsAnalyzer {
 
     return markdown;
   }
+
+  /**
+   * Export features and scenarios to markdown files in bddai/ directory
+   */
+  async exportToMarkdownFiles(
+    result: AnalysisResult,
+    outputDir: string
+  ): Promise<{
+    reportFile: string;
+    featureFiles: string[];
+    scenarioFiles: string[];
+  }> {
+    const fs = await import('fs/promises');
+    const path = await import('path');
+
+    // Create bddai directory
+    await fs.mkdir(outputDir, { recursive: true });
+
+    // Export analysis report
+    const reportFile = path.join(outputDir, 'analysis-report.md');
+    const reportContent = await this.exportToMarkdown(result);
+    await fs.writeFile(reportFile, reportContent);
+
+    // Export each feature and its scenarios
+    const featureFiles: string[] = [];
+    const scenarioFiles: string[] = [];
+
+    for (const feature of result.features) {
+      const scenarios = result.scenarios.get(feature.id) || [];
+      const exported = await this.generator.exportToMarkdown(feature, scenarios, outputDir);
+
+      featureFiles.push(exported.featureFile);
+      scenarioFiles.push(...exported.scenarioFiles);
+    }
+
+    return {
+      reportFile,
+      featureFiles,
+      scenarioFiles
+    };
+  }
 }
